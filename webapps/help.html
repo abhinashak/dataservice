@@ -1,0 +1,361 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Data service</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="stylesheet" href="styles/main.css">
+<link rel="stylesheet" href="styles/jquery-ui.css">
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script src="js/jquery-ui.js"></script>
+<script type="text/javascript" src="js/controller.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/validation.js"></script>
+
+<script type="text/javascript">
+
+			$(document).ready(function() {
+				paintHeaderAndFooter();
+			});
+			
+	</script>
+	
+	<style type="text/css">
+		pre{
+			padding: 10px;
+		  margin-top: 10px;
+		  margin-bottom: 10px;
+		  font-size: 100%;
+		  background-color: rgba(0,0,0,0.04);
+		  border-radius: 5px;
+		  color: brown;
+  		}
+	</style>
+</head>
+
+<body class="template--companySetup">
+
+	<div id="divHeader"></div>
+
+	<div class="grid-row-container">
+		<div class="grid-row">
+
+			<h2>Setup Id Sequence</h2>
+			http://localhost:8080/dataservice.html?service=sql&action=execute&query=
+			{queries:[{queryid:%22ADD_SEQUENCE%22,params: [<span
+				style="color: #ff0000">cowid</span>,<span style="color: #ff0000">1</span>]}]}&format=jsonp
+			<br />
+			<pre>
+	<b>cowid</b>: The Id sequence Name <br />
+	<b>1</b>  : The begin sequence number. <br />
+</pre>
+
+			<h2>Setup Multiple Id Sequences</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&query=
+			{queries:[{queryid:%22ADD_SEQUENCE%22,params:%20[classes,1]},{queryid:%22ADD_SEQUENCE%22,params:%20[students,1]}]}&format=jsonp
+
+			<h2>Generate Id</h2>
+			<i>Example:</i> <br />
+			<pre>
+    http://localhost:8080/dataservice.html?service=sql&action=generateid&<span
+					style="color: #ff0000">sequence</span>=cowid&<span
+					style="color: #ff0000">amount</span>=10 <br />
+		<b>idsequence</b>: The sequence on which an Id to be generated <br />
+		<b>amount</b>: Number of Ids to be generated. Returns the starting Id. <br />
+</pre>
+
+			<h2>Generate Multiple Ids</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=generateids&query={"sequences":
+			[{"sequence": "classes","amount": 3},{"sequence":
+			"students","amount": 15}]}&format=jsonp
+
+			<h2>Conditional Execution</h2>
+			<i>Example:</i> <br />
+			<pre>
+http://localhost:8080/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&query=
+{"queries":[{"queryid":"GET_APP_CONFIG_COUNT","params":[],"expr":{"lhs":"@classid","rhs":"0","opr":"=="}}]}&variables={"variables":[{"key":"classid","value":0}]}
+</pre>
+			You can provide variable with @ sign in the left hand side.
+
+			<h2>DATA API Call</h2>
+
+			<h3 style="color: #aaccff">SELECT configtype, title, body,
+				status FROM app_config WHERE configtype = ? AND status = __var1 AND
+				1 = 1 AND ( __where ) ORDER BY __sort LIMIT __limit OFFSET __offset
+			</h3>
+			http://localhost:8080/dataservice.html?service=sql&action=execute&<span
+				style="color: #ff0000">format</span>=jsonp&<span
+				style="color: #ff0000">pool</span>=configpool&<span
+				style="color: #ff0000">var1</span>='Y'&query={queries:[{<span
+				style="color: #ff0000">queryid</span>:EXAMPLE,<span
+				style="color: #ff0000">params</span>:[S]}]} <br /> <br />
+			http://localhost:8080/dataservice.html?service=sql&action=execute&<span
+				style="color: #ff0000">format</span>=jsonp&<span
+				style="color: #ff0000">pool</span>=configpool&<span
+				style="color: #ff0000">sort</span>=title&<span
+				style="color: #ff0000">var1</span>='Y'&query={queries:[{<span
+				style="color: #ff0000">queryid</span>:EXAMPLE,<span
+				style="color: #ff0000">params</span>:[S]}]} <br /> <br />
+			http://localhost:8080/dataservice.html?service=sql&action=execute&<span
+				style="color: #ff0000">format</span>=jsonp&<span
+				style="color: #ff0000">pool</span>=configpool&<span
+				style="color: #ff0000">sort</span>=title&<span
+				style="color: #ff0000">offset</span>=2&<span style="color: #ff0000">limit</span>=1&<span
+				style="color: #ff0000">var1</span>='Y'&query={queries:[{<span
+				style="color: #ff0000">queryid</span>:EXAMPLE,<span
+				style="color: #ff0000">params</span>:[S]}]} <br /> <br />
+
+
+			<pre>
+	<b>format</b>: Allowed formats are : jsonp,xml,xls
+	<b>pool</b> : Comes from jdbc.conf the pool name. Can choose one from the defined values
+	<b>queryid</b> The DATA API Name
+	<b>params</b>  Comma separated values of parameterized arguments  ( SQL Prepare Stmt ? ) 
+	                 __null : Null parameter <br />
+	                 __user
+	<b>sort</b>  : sort field
+	<b>where</b> : Where condition
+	<b>offset</b> : Offset in a pagination
+	<b>limit</b> :  Limit in a pagination
+	<b>var1</b> :  Special variable inside a query (Other than ?)	
+	<b>var2</b> :  Special variable inside a query (Other than ?)	
+	<b>var3</b> :  Special variable inside a query (Other than ?)	
+	<b>var4</b> :  Special variable inside a query (Other than ?)	
+</pre>
+
+			You can override where,sort,offset,limit inside the query json.
+
+			<h2>Multiple Data API calling together</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&query={"queries":[{"queryid":"NSOTEST1","params":[]},{"queryid":"NSOTEST2","params":[2,1,80]},{"queryid":"NSOTEST3","params":[]},{"queryid":"NSOTEST4","params":[]},{"queryid":"NSOTEST5","params":[]},{"queryid":"NSOTEST6","params":[]}]}&variables={"variables":[{"key":"guid","value":1}]}
+
+			<h2>Transaction Implementation</h2>
+			<pre>
+	<b>Generate a transaction id</b>:
+	http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=createTxn&idleTimeInMillis=300000&pool=configpool
+	
+	<b>execute queries with that transaction id</b>:
+	http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&txnid=2&query={queries:[{queryid:ADD_SEQUENCE,params:['abc',420]}]}
+	
+	<b>commit the transaction</b>:
+	http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=releaseTxn&format=jsonp&txnid=2&commit=true
+</pre>
+
+			<h2>Execute Text</h2>
+			localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=executeText&sqlBody=insert
+			into roles values(18,'new');&pool=configpool
+
+			<h2>Execute Url</h2>
+			localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=executeUrl&sqlUrl=http://localhost:8080/dataservice-1.0.0/a.txt&pool=configpool
+
+			<h2>While Loop Implementation</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&query={"queries":[{"queryid":"SET_X_AS_0","params":[]},{"functionid":"Function_while","isRecursive":true,"expr":{"lhs":"@x","rhs":2,"opr":"<"}}]}
+
+			<h2>Global variables</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=one&query={"queries":[{"queryid":"INSERT_INTO_TEST","params":[]}]}&variables={"variables":[{"key":"id","value":1},{"key":"name","value":"'abc'"},{"key":"age","value":11},{"key":"address","value":"'hsr'"}]}
+
+			<h2>Local variables</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=one&query={queries:[{queryid:INSERT_INTO_TEST,params:[],"variables":[{"key":"id","value":1},{"key":"name","value":"'abc'"},{"key":"age","value":11},{"key":"address","value":"'hsr'"}]}]}
+
+			<h2>Sort,Limit,Offset for specific queries</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&query={queries:[{queryid:GET_APP_CONFIG,params:[],"sort":"title
+			desc","offset":1,"limit":5}]}
+
+			<h2>Sort,Limit,Offset global</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&query={queries:[{queryid:GET_APP_CONFIG,params:[]}]}&sort=title
+			desc&offset=1&limit=5
+
+			<h2>Check version of code</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=version&format=jsonp
+
+			<h2>Or Expression</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&query=
+			{"queries":[{"queryid":"GET_ROLES","params":[],"orexprs":[{"expr":{"lhs":1,"opr":"==","rhs":1}},{"expr":{"lhs":1,"opr":"==","rhs":1}}]}]}
+
+
+			<h2>And Expression</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&query=
+			{"queries":[{"queryid":"GET_ROLES","params":[],"andexprs":[{"expr":{"lhs":1,"opr":"==","rhs":1}},{"expr":{"lhs":1,"opr":"==","rhs":1}}]}]}
+
+
+			<h2>Refresh all settings.</h2>
+			http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=refresh <br />
+
+			<h2>HTTP-POST Request</h2>
+			<b>URL</b> : The URL for post request along with all the parameters
+			except query parameter<br /> <i>Example:</i>
+			http://216.241.82.117:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=appdb&variables={"variable":[{"key":"firstname","value":"abinash"}]}
+			<br /> <b>Body</b> : The body of the post request i.e. the query
+			parameter<br /> <i>Example:</i>
+			query={queries:[{"queryid":"query_filter_students","params":[]}]}
+			<br />
+
+			<h2>Assign Query</h2>
+<pre>
+Eg:
+
+Query          = select name,age,class from students where id = 7
+OutputVariable = name,age,class
+</pre>
+<b>*Note : </b>
+<ul>
+	<li>Assign query must start with a select clause.</li>
+	<li>Number of select columns should be equal to the number of output variables.</li>
+	<li>Output variables should be in same order as select columns order in the query.</li>
+	<li>If select clause returns multiple rows the last rows value will be taken into consideration.</li>
+	<li>If select clause return zero rows then variables value will be set to null.</li>
+</ul> 
+ 
+
+
+			<h2>Function Implementation</h2>
+			
+<p>
+Function is sequence of queries.<br />
+In a function a assign statement will change the variable which can be fed to the next variable.<br />
+A statement gets executed inside this sequence based on a expression.<br /><br />
+<pre>
+{"queries":[{"queryid":"GET_ROLES","params":[]}]}
+</pre>
+
+<br />
+Two queries in a function. All gets executed in a transaction. <br />
+
+<pre>
+{"queries":[{"queryid":"GET_ROLES","params":[]},{"queryid":"GET_FUNCTION_COUNT","params":[]}]}
+</pre>
+
+<br /><br /><b>Execution on condition</b> <br /><br />
+
+Setup a Query <br />
+<pre>
+Title:TOTAL_ROLES<br />
+Query:select count(*) from roles where role_name='root'<br />
+Output:IS_ROOT_ADDED<br />
+</pre>
+
+Setup a Function <br />
+<pre>
+Function: SHOW_ROOT<br />
+Query:<br />
+{"queries":[ {"queryid":"TOTAL_ROLES","params":[]}, {"queryid":"GET_ROLES","params":[],"expr":{"lhs":"@IS_ROOT_ADDED","opr":"==","rhs":"1"}}]}
+</pre>
+
+This will not show if the root is not a role in roles table. 
+delete from roles where role_name = 'root';
+
+</p>
+
+<br /><br /><b>Local and Global Variables in Function Execution</b> <br /><br />
+			
+<pre>
+http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&
+query={"queries":[{"functionid":"FUNCTION_ID","variables":[{"key":"var1","value":1},{"key":"var2","value":2}]]}
+&variables={"variables":[{"key":"var2","value":1}]}
+</pre>
+Here variables passed along with functionid are local variables and if passed as a parameter in the end it is global variable.
+<br/> While executing a function local variable takes a precedence over global variables. 
+
+
+			<div id="sequencegenInsert">
+			<h2>Sequence Id generation and Insert/Update API</h2>
+			<b>Usage : </b> This API can be used to generate a sequence id and use that sequence id in the query 
+					to insert the record or update the record.<br/>
+			<b>Example : </b>
+<pre> 
+http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=appdb
+&query={queries:[{queryid:"addcow",sequences:[{"sequenceKey":"cow",
+"sequenceName":"cowid"}]}]}&variables=
+{"variables":[{"key":"firstname","value":"abinash"},
+{"key":"lastname","value":"karan"},{"key":"age","value":38},{"key":"sex","value":"male"},
+{"key":"married","value":true}]}
+</pre>
+			<br/> In the above API call query is mapped as below: <br/>
+<pre>
+query={queries:[{queryid:"addcow",
+               sequences:[{"sequenceKey":"cow","sequenceName":"cowid"}]}]}
+</pre>
+			   	Here queryid is the query that needs to be executed.<br/>
+			   	sequences represent that the id needs to be generated for key "cow" and stored in a variable named "cowid"
+			   	 which in turn will be used in the query.
+			   	<br/>
+			   	<br/>
+			   	<b>*Note:</b> 
+			   	Before using the above way for generating sequences configure the sequence key first by using below API
+			   	<pre> http://localhost:8080/dataservice-1.0.0/dataservice.html?service=sql&action=execute&format=jsonp&pool=configpool&query={queries:[{queryid:ADD_SEQUENCE,params:[cow,1]}]}
+			   	</pre> Once the sequence key is configured it can be used in other calls.
+			   	<br/> Configuration for sequencekey is as below to be added in site.xml:
+			   	<br/> 
+			   	<pre> 
+&lt;property&gt;
+	&lt;name&gt;table.ids.amount&lt;/name&gt;
+	&lt;value&gt;&lt;/value&gt;
+	&lt;description&gt;
+		The buffer capacity of sequencekeys given in the below format
+		seq1=100,seq2=200,seq3=500 etc
+	&lt;/description&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+	&lt;name&gt;table.ids.amount.default.value&lt;/name&gt;
+	&lt;value&gt;100&lt;/value&gt;
+	&lt;description&gt;
+		The default value to be used if sequencekey is not found in above property.
+	&lt;/description&gt;
+&lt;/property&gt;
+			   	</pre> 
+			<br />
+			</div>
+
+
+			<div id="preparedStatement">
+			<h2>Prepared Statement Queries:</h2>
+			<b>Examples:</b>
+<pre>
+INSERT INTO students (student_id, lastname, firstname, gender_code, birth_dttm) VALUES (@studentid, @lastname, 
+@firstname, @gendercode, @birthdttm)
+</pre>
+<pre>
+SELECT DISTINCT lastname WHERE firstname = @firstname &strCondition
+</pre>
+				The above query will be converted to prepared statement with following replacement.<br/>
+				variables starting with '@' symbol will be replaced by ? whose value will be passed as parameters to prepared statement<br/>
+				variables starting with '&' symbol will be replaced by exact value given in the variables json.<br/>
+				
+<pre>
+Sample variables json:
+				
+{"variables":[{"key":"studentid","value":1},{"key":"lastname","value":"karan"},
+             {"key":"firstname","value":"abinash"},{"key":"gendercode","value":"male"},
+             {"key":"birthdttm","value":"currentdate()"}]}
+</pre>
+				Here key is the name of variable same as that used in the query.<br/>
+				value is the actual value that will be used in place of the variables.<br/>
+				&nbsp;&nbsp; - String variables to be quoted in double quotes.<br/>
+				&nbsp;&nbsp; - Empty String variable needs to just have double quotes.<br/>
+				&nbsp;&nbsp; - Numeric variables to be passed without double quotes.<br/>
+				&nbsp;&nbsp; - Null variables should be passed as null.<br/>
+				Example for same is as below:
+<pre>
+{"variables":[
+			 {"key":"CompanyName","value":"Bizosys"}, (String variable)
+			 {"key":"firstname","value":""},     (Empty string variable)
+			 {"key":"studentid","value":1},         (Numeric variable)
+			 {"key":"gendercode","value":null}      (Null variable)
+		 ]
+}
+</pre>
+			<br />
+			</div>
+
+			</div>
+
+		</div>
+	</div>
+
+	<div id="divFooter"></div>
+
+</body>
+</html>
